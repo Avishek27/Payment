@@ -1,0 +1,75 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User{
+  id                 String     @id @default(cuid())
+  name               String?
+  email              String     @unique
+  password           String
+  
+  wallet             Wallet?
+  bankAccount        HDFC?
+  transactions       Transactions[]
+
+  createdAt          DateTime   @default(now())
+  updatedAt          DateTime   @updatedAt
+}
+
+
+model Wallet{
+  id                 String      @id @default(cuid())
+  userId             String      @unique
+  user               User        @relation(fields: [userId],references: [id])
+  balance            Int
+
+  createdAt          DateTime   @default(now())
+  updatedAt          DateTime   @updatedAt
+}
+//maintaining a particular bank account only
+
+model HDFC{
+  id                 String      @id @default(cuid())
+  userId             String      @unique
+  user               User        @relation(fields: [userId],references: [id])
+  balance            Int 
+
+  createdAt          DateTime    @default(now())
+  updatedAt          DateTime    @updatedAt
+}
+
+enum Type{
+  DEPOSIT
+  WITHDRAW
+  TRANSFER
+}
+
+
+
+model Transactions{
+  id                 String      @id @default(cuid())
+  type               Type        @default(DEPOSIT)
+  amount             Int
+  userId             String      
+  user               User        @relation(fields: [userId],references: [id])
+  recieverId         String?
+  //(optional reciever id i.e txns other than bank transfer)       
+
+
+  createdAt          DateTime    @default(now())
+  updateAt           DateTime    @updatedAt
+}
+
+
+
+
